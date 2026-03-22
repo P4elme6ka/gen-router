@@ -410,4 +410,4 @@ make bench-save
 
 ## Notes
 
-This version is intentionally small and reflection-based at compile/setup time so it can evolve toward OpenAPI generation later.
+This version is intentionally small and reflection-based at compile/setup time so it can evolve toward OpenAPI generation later, or even to handler generation.

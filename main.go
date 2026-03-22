@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"gen-router/router"
+	"github.com/P4elme6ka/gen-router/router"
 )
 
 func main() {

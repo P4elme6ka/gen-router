@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"gen-router/internal/route"
+	"github.com/P4elme6ka/gen-router/internal/route"
 )
 
 func newBenchmarkInputRequest() *http.Request {

@@ -1,4 +1,4 @@
-module gen-router
+module github.com/P4elme6ka/gen-router
 
 go 1.26
 

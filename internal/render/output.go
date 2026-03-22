@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"gen-router/internal/meta"
+	"github.com/P4elme6ka/gen-router/internal/meta"
 )
 
 type accessor func(reflect.Value) reflect.Value

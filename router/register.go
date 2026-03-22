@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"gen-router/internal/bind"
-	"gen-router/internal/render"
-	"gen-router/internal/route"
+	"github.com/P4elme6ka/gen-router/internal/bind"
+	"github.com/P4elme6ka/gen-router/internal/render"
+	"github.com/P4elme6ka/gen-router/internal/route"
 )
 
 func Register[I Input, O Output](r *Router, handler Handler[I, O]) error {
