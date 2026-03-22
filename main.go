@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,7 +22,8 @@ func main() {
 
 type CustomerCreateHandler struct{}
 
-func (h *CustomerCreateHandler) Handle(input CustomerCreateInput) CustomerCreateOutput {
+func (h *CustomerCreateHandler) Handle(ctx context.Context, input CustomerCreateInput) CustomerCreateOutput {
+	_ = ctx
 	if strings.TrimSpace(input.AuthToken) == "" {
 		return CustomerCreateOutput{
 			Unauthorized: &ErrorResponse{Error: "missing X-Auth-Token header"},
