@@ -15,7 +15,6 @@ type OutputStruct interface{}
 type Handler[I InputStruct, O OutputStruct] interface {
 	Handle(input I) O
 	I() I
-	O() O
 }
 
 type Router struct {
@@ -80,10 +79,6 @@ func (h *CustomerCreateHandler) Handle(input CustomerCreateInput) CustomerCreate
 
 func (h *CustomerCreateHandler) I() CustomerCreateInput {
 	return CustomerCreateInput{}
-}
-
-func (h *CustomerCreateHandler) O() CustomerCreateOutput {
-	return CustomerCreateOutput{}
 }
 
 type CustomerCreateInput struct {
