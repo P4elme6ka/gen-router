@@ -1,6 +1,6 @@
 .PHONY: bench bench-save
 
-BENCH_PKGS := ./internal/bind ./internal/render ./
+BENCH_PKGS := ./tests/gen_bench ./tests/std_http_bench
 BENCH_CMD := go test $(BENCH_PKGS) -run '^$$' -bench . -benchmem -count=1
 
 bench:

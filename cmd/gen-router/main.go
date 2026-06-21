@@ -51,6 +51,14 @@ func writeGeneratedMetadata(plan *ir.ModulePlan) error {
 		if pkg.Dir == "" || len(pkg.Handlers) == 0 {
 			continue
 		}
+
+		// Generate JSON codec for body types
+		if err := emit.GenerateJSONCodec(pkg); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: failed to generate JSON codec for %s: %v\n", pkg.ImportPath, err)
+			// Don't fail entirely, as JSON codec is optional
+		}
+
+		// Generate router metadata and binders
 		content, err := emit.RenderMetadataFile(pkg)
 		if err != nil {
 			return err

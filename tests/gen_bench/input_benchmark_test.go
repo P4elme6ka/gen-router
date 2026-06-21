@@ -1,4 +1,4 @@
-package bind
+package genbench
 
 import (
 	"net/http"
@@ -6,8 +6,21 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/P4elme6ka/gen-router/internal/bind"
 	"github.com/P4elme6ka/gen-router/internal/route"
 )
+
+type benchmarkBindInput struct {
+	CustomerID string            `gen-router:"in:path;name:id"`
+	AuthToken  string            `gen-router:"in:header;name:X-Auth-Token"`
+	Verbose    *bool             `gen-router:"in:query;name:verbose"`
+	Tags       []string          `gen-router:"in:query;name:tag"`
+	Body       benchmarkBindBody `gen-router:"in:body"`
+}
+
+type benchmarkBindBody struct {
+	Name string `json:"name"`
+}
 
 func newBenchmarkInputRequest() *http.Request {
 	req := httptest.NewRequest("POST", "/customers/42?verbose=true&tag=one&tag=two", strings.NewReader(`{"name":"Alice"}`))
@@ -25,7 +38,7 @@ func BenchmarkParseInput(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		req := newBenchmarkInputRequest()
-		if _, err := ParseInput(req, pattern, bindInput{}); err != nil {
+		if _, err := bind.ParseInput(req, pattern, benchmarkBindInput{}); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -36,7 +49,7 @@ func BenchmarkCompilePlanParseInput(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	plan, err := Compile(pattern, bindInput{})
+	plan, err := bind.Compile(pattern, benchmarkBindInput{})
 	if err != nil {
 		b.Fatal(err)
 	}
