@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/P4elme6ka/gen-router/internal/bind"
-	"github.com/P4elme6ka/gen-router/internal/render"
-	"github.com/P4elme6ka/gen-router/internal/route"
+	"github.com/P4elme6ka/gen-router/src/bind"
+	"github.com/P4elme6ka/gen-router/src/render"
+	"github.com/P4elme6ka/gen-router/src/route"
 )
 
 func Register[I Input, O Output](r *Router, handler Handler[I, O]) error {

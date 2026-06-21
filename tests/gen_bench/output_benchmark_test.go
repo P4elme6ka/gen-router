@@ -4,7 +4,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/P4elme6ka/gen-router/internal/render"
+	"github.com/P4elme6ka/gen-router/src/render"
 )
 
 type benchmarkRenderOutput struct {

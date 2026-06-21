@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/P4elme6ka/gen-router/internal/route"
+	"github.com/P4elme6ka/gen-router/src/route"
 )
 
 type bindInput struct {

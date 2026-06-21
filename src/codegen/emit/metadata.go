@@ -9,7 +9,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/P4elme6ka/gen-router/internal/codegen/ir"
+	"github.com/P4elme6ka/gen-router/src/codegen/ir"
 )
 
 const generatedFileName = "zz_gen_router_meta.go"
@@ -26,7 +26,7 @@ import (
 
 	"github.com/google/uuid"
 
-	genrouterruntime "github.com/P4elme6ka/gen-router/internal/codegen/runtime"
+	genrouterruntime "github.com/P4elme6ka/gen-router/src/codegen/runtime"
 )
 
 {{ range .Handlers }}

@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/P4elme6ka/gen-json/pkg/genjson"
-	"github.com/P4elme6ka/gen-router/internal/codegen/ir"
+	"github.com/P4elme6ka/gen-router/src/codegen/ir"
 )
 
 // GenerateJSONCodec generates fast JSON encoder/decoder code for input body types.

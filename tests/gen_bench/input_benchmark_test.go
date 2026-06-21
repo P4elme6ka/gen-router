@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/P4elme6ka/gen-router/internal/bind"
-	"github.com/P4elme6ka/gen-router/internal/route"
+	"github.com/P4elme6ka/gen-router/src/bind"
+	"github.com/P4elme6ka/gen-router/src/route"
 )
 
 type benchmarkBindInput struct {

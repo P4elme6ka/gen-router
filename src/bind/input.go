@@ -9,8 +9,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/P4elme6ka/gen-router/internal/meta"
-	"github.com/P4elme6ka/gen-router/internal/route"
+	"github.com/P4elme6ka/gen-router/src/meta"
+	"github.com/P4elme6ka/gen-router/src/route"
 )
 
 type Plan[I any] struct {

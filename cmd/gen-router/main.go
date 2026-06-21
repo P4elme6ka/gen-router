@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/P4elme6ka/gen-router/internal/codegen/discover"
-	"github.com/P4elme6ka/gen-router/internal/codegen/emit"
-	"github.com/P4elme6ka/gen-router/internal/codegen/ir"
+	"github.com/P4elme6ka/gen-router/src/codegen/discover"
+	"github.com/P4elme6ka/gen-router/src/codegen/emit"
+	"github.com/P4elme6ka/gen-router/src/codegen/ir"
 )
 
 func main() {

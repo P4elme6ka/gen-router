@@ -15,7 +15,7 @@ import (
 
 	"golang.org/x/tools/go/packages"
 
-	"github.com/P4elme6ka/gen-router/internal/codegen/ir"
+	"github.com/P4elme6ka/gen-router/src/codegen/ir"
 )
 
 type Config struct {

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/P4elme6ka/gen-router/internal/codegen/ir"
+	"github.com/P4elme6ka/gen-router/src/codegen/ir"
 )
 
 // GenerateSpec converts discovered handlers to OpenAPI 3.0 spec.

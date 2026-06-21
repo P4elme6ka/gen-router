@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/P4elme6ka/gen-router/internal/codegen/discover"
-	"github.com/P4elme6ka/gen-router/internal/oas"
+	"github.com/P4elme6ka/gen-router/src/codegen/discover"
+	"github.com/P4elme6ka/gen-router/src/oas"
 )
 
 func main() {
