@@ -4,6 +4,68 @@ A small generic HTTP router for Go that binds typed request structs from `net/ht
 
 The project now supports a codegen pipeline that can generate route metadata, handler-specific binder stubs, and package-local JSON codecs for request body types.
 
+---
+
+## Installation
+
+### 1. Add the library to your project
+
+```zsh
+go get github.com/P4elme6ka/gen-router@latest
+```
+
+### 2. Install the code generator tools
+
+`gen-router` — discovers handlers and generates binder/metadata files:
+
+```zsh
+go install github.com/P4elme6ka/gen-router/cmd/gen-router@latest
+```
+
+`gen-oas` — discovers handlers and generates an OpenAPI 3.0 JSON spec:
+
+```zsh
+go install github.com/P4elme6ka/gen-router/cmd/gen-oas@latest
+```
+
+### 3. Run the code generators in your project
+
+Generate handler metadata and binder code into your package:
+
+```zsh
+gen-router -write ./...
+```
+
+Generate OpenAPI JSON spec:
+
+```zsh
+gen-oas -output openapi.json ./...
+```
+
+Or if you prefer to run without installing globally, use `go run`:
+
+```zsh
+go run github.com/P4elme6ka/gen-router/cmd/gen-router@latest -write ./...
+go run github.com/P4elme6ka/gen-router/cmd/gen-oas@latest -output openapi.json ./...
+```
+
+### 4. Add `gen-router` to your `go:generate` (optional)
+
+Add this to any file in your package to tie codegen to `go generate`:
+
+```go
+//go:generate gen-router -write .
+//go:generate gen-oas -output openapi.json .
+```
+
+Then run:
+
+```zsh
+go generate ./...
+```
+
+---
+
 ## What this library does
 
 - register generic handlers with typed input/output structs
