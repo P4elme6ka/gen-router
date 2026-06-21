@@ -52,6 +52,13 @@ The rest of the runtime behavior comes from `gen-router` struct tags.
 - `zz_gen_router_json.go`
   - generated `Decode<Type>` / `Encode<Type>` helpers for input body types (via `gen-json`)
 
+The project also provides a separate OpenAPI generator tool:
+
+- `cmd/gen-oas`
+  - discovers handlers from typed router contracts
+  - emits OpenAPI 3.0 JSON (`paths`, operations, parameters, requestBody, responses)
+  - emits basic component schemas for discovered request/response body type names
+
 Current state:
 - runtime registration (`router.Register`) still works without codegen
 - generated binders are emitted and attached to metadata for incremental integration and benchmarking
@@ -76,6 +83,31 @@ Preview discovered plan as JSON (without writing files):
 ```zsh
 go run ./cmd/gen-router -output json ./...
 ```
+
+### Generate OpenAPI JSON
+
+Generate and save OpenAPI spec:
+
+```zsh
+go run ./cmd/gen-oas -output openapi.json ./...
+```
+
+Print OpenAPI spec to stdout and write to default `openapi.json`:
+
+```zsh
+go run ./cmd/gen-oas ./...
+```
+
+Current OpenAPI generator output includes:
+- routes mapped to operations by `EndpointPath()` (method + path)
+- input tags mapped to OpenAPI parameters (`path`, `query`, `header`, `cookie`)
+- input `in:body` mapped to `requestBody` with `application/json`
+- output `response:XXX` variants mapped to response status codes
+- output `in:header` fields mapped to response headers
+
+Current limitations:
+- component schemas are currently basic placeholders for named body types
+- `description:...` / `schema:...` tags are not yet projected into OpenAPI fields
 
 ---
 
@@ -446,6 +478,7 @@ gen-router:"response:200;in:body;description:Customer created;schema:CustomerRes
 
 ```zsh
 go run ./cmd/gen-router -write ./...
+go run ./cmd/gen-oas -output openapi.json ./...
 go build ./...
 go test ./...
 make bench
