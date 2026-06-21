@@ -3,7 +3,7 @@ module github.com/P4elme6ka/gen-router
 go 1.26
 
 require (
-	github.com/P4elme6ka/gen-json v0.0.1
+	github.com/P4elme6ka/gen-json v0.0.2
 	github.com/google/uuid v1.6.0
 	golang.org/x/tools v0.43.0
 )
