@@ -2,6 +2,8 @@
 
 A small generic HTTP router for Go that binds typed request structs from `net/http` requests and renders tagged response variants.
 
+The project now supports a codegen pipeline that can generate route metadata, handler-specific binder stubs, and package-local JSON codecs for request body types.
+
 ## What this library does
 
 - register generic handlers with typed input/output structs
@@ -13,7 +15,9 @@ A small generic HTTP router for Go that binds typed request structs from `net/ht
   - cookies
 - render response variants from tagged output structs
 - apply shared output fields to any selected response variant
+- pass `context.Context` through handlers and middleware
 - use the standard library `http.ServeMux`
+- generate metadata/binder/JSON codec files for faster paths and future OpenAPI generation
 
 ## Core model
 
@@ -21,7 +25,7 @@ A handler looks like this:
 
 ```go
 type Handler[I router.Input, O router.Output] interface {
-	Handle(input I) O
+	Handle(ctx context.Context, input I) O
 	I() I
 }
 ```
@@ -35,6 +39,43 @@ func (i MyInput) EndpointPath() string {
 ```
 
 The rest of the runtime behavior comes from `gen-router` struct tags.
+
+---
+
+## Codegen capabilities
+
+`gen-router` can analyze your handlers and generate package-local files:
+
+- `zz_gen_router_meta.go`
+  - typed `GenRouterMetadata` value for discovered handlers
+  - generated binder functions per handler (`genRouterBind<Handler>`)
+- `zz_gen_router_json.go`
+  - generated `Decode<Type>` / `Encode<Type>` helpers for input body types (via `gen-json`)
+
+Current state:
+- runtime registration (`router.Register`) still works without codegen
+- generated binders are emitted and attached to metadata for incremental integration and benchmarking
+- metadata is structured to support future OpenAPI generation
+
+### EndpointPath support for codegen
+
+To be discoverable at compile-time, `EndpointPath()` can currently use:
+- plain string literal
+- string concatenation with `+`
+- `fmt.Sprintf(...)` when all pieces resolve to compile-time strings
+- same-package string constants/vars used by the expression
+
+### Generate files
+
+```zsh
+go run ./cmd/gen-router -write ./...
+```
+
+Preview discovered plan as JSON (without writing files):
+
+```zsh
+go run ./cmd/gen-router -output json ./...
+```
 
 ---
 
@@ -312,6 +353,7 @@ Recommended pattern:
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -322,7 +364,8 @@ import (
 
 type CreateCustomerHandler struct{}
 
-func (h *CreateCustomerHandler) Handle(input CreateCustomerInput) CreateCustomerOutput {
+func (h *CreateCustomerHandler) Handle(ctx context.Context, input CreateCustomerInput) CreateCustomerOutput {
+	_ = ctx
 	if strings.TrimSpace(input.Token) == "" {
 		return CreateCustomerOutput{
 			Unauthorized: &ErrorResponse{Error: "missing token"},
@@ -401,7 +444,8 @@ gen-router:"response:200;in:body;description:Customer created;schema:CustomerRes
 
 ## Development
 
-```bash
+```zsh
+go run ./cmd/gen-router -write ./...
 go build ./...
 go test ./...
 make bench
@@ -410,4 +454,4 @@ make bench-save
 
 ## Notes
 
-This version is intentionally small and reflection-based at compile/setup time so it can evolve toward OpenAPI generation later, or even to handler generation.
+This version keeps the reflection-based runtime path as the default, while adding code generation for metadata and binder/JSON building blocks.
