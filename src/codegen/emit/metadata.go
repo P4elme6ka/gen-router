@@ -278,7 +278,7 @@ func renderBodyAssignmentLines(field ir.InputFieldPlan) []string {
 
 	if strings.HasPrefix(typeName, "*") {
 		typeName = strings.TrimPrefix(typeName, "*")
-		decodeFuncName := "Decode" + exportedIdentifier(typeName)
+		decodeFuncName := "Decode" + typeName
 		return []string{
 			"if reqBodyPresentGenerated(req) {",
 			"\tbody, err := io.ReadAll(req.Body)",
@@ -296,7 +296,7 @@ func renderBodyAssignmentLines(field ir.InputFieldPlan) []string {
 		}
 	}
 
-	decodeFuncName := "Decode" + exportedIdentifier(typeName)
+	decodeFuncName := "Decode" + typeName
 	return []string{
 		"if !reqBodyPresentGenerated(req) {",
 		fmt.Sprintf("\treturn input, fmt.Errorf(%q)", "missing request body"),
