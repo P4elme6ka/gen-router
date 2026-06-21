@@ -1,5 +1,5 @@
-github.com/P4elme6ka/gen-json v0.0.2 h1:TNLISOuvRyPXvKVbbqzxXVEL5+jz3HB0uB5rW0ZiJ8w=
-github.com/P4elme6ka/gen-json v0.0.2/go.mod h1:PDC8kCbgViq7+EhmBncyfl1E/1h6vmXB5r/+JbLU6tE=
+github.com/P4elme6ka/gen-json v0.0.3 h1:7Go/WjZM3/+3FcqPIKzrN7JC/nmfegL4pEYf9PtL+OM=
+github.com/P4elme6ka/gen-json v0.0.3/go.mod h1:PDC8kCbgViq7+EhmBncyfl1E/1h6vmXB5r/+JbLU6tE=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
