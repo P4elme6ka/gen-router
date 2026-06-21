@@ -9,7 +9,7 @@ import (
 )
 
 // GenerateSpec converts discovered handlers to OpenAPI 3.0 spec.
-func GenerateSpec(plan *ir.ModulePlan) *OpenAPISpec {
+func GenerateSpec(plan *ir.ModulePlan) (*OpenAPISpec, error) {
 	spec := &OpenAPISpec{
 		OpenAPI: "3.0.0",
 		Info: Info{
@@ -20,45 +20,26 @@ func GenerateSpec(plan *ir.ModulePlan) *OpenAPISpec {
 		Components: Components{Schemas: make(map[string]*Schema)},
 	}
 
-	// Collect all types we'll need schemas for
-	typeSchemas := make(map[string]*Schema)
+	builder, err := newSchemaBuilder(plan)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, pkg := range plan.Packages {
 		for _, handler := range pkg.Handlers {
-			// Generate schemas for input/output types
-			if handler.Input.Body != nil {
-				typeName := extractTypeName(handler.Input.Body.Type)
-				if _, exists := typeSchemas[typeName]; !exists {
-					typeSchemas[typeName] = generateSchemaForType(typeName)
-				}
-			}
-
-			for _, variant := range handler.Output.Variants {
-				for _, field := range variant.Fields {
-					if field.Source == "body" {
-						typeName := extractTypeName(field.Type)
-						if _, exists := typeSchemas[typeName]; !exists {
-							typeSchemas[typeName] = generateSchemaForType(typeName)
-						}
-					}
-				}
-			}
-
-			// Add handler to paths
-			addHandlerToSpec(spec, handler)
+			addHandlerToSpec(spec, builder, pkg.ImportPath, handler)
 		}
 	}
 
-	// Add all type schemas to components
-	for typeName, schema := range typeSchemas {
-		spec.Components.Schemas[typeName] = schema
+	for name, schema := range builder.components {
+		spec.Components.Schemas[name] = schema
 	}
 
-	return spec
+	return spec, nil
 }
 
 // addHandlerToSpec converts a single handler to OpenAPI PathItem + Operation.
-func addHandlerToSpec(spec *OpenAPISpec, handler ir.HandlerPlan) {
+func addHandlerToSpec(spec *OpenAPISpec, builder *schemaBuilder, currentImportPath string, handler ir.HandlerPlan) {
 	pathKey := handler.Route.Path
 	methodLower := strings.ToLower(handler.Route.Method)
 
@@ -82,48 +63,52 @@ func addHandlerToSpec(spec *OpenAPISpec, handler ir.HandlerPlan) {
 		case "path":
 			if _, isPathParam := pathParams[field.Name]; isPathParam {
 				op.Parameters = append(op.Parameters, Parameter{
-					Name:     field.Name,
-					In:       "path",
-					Required: true,
-					Schema:   schemaForType(field.Type),
+					Name:        field.Name,
+					In:          "path",
+					Description: field.Description,
+					Required:    true,
+					Schema:      builder.schemaForTypeString(currentImportPath, field.Type),
 				})
 			}
 		case "query":
 			required := !strings.HasPrefix(field.Type, "*")
 			op.Parameters = append(op.Parameters, Parameter{
-				Name:     field.Name,
-				In:       "query",
-				Required: required,
-				Schema:   schemaForType(field.Type),
+				Name:        field.Name,
+				In:          "query",
+				Description: field.Description,
+				Required:    required,
+				Schema:      builder.schemaForTypeString(currentImportPath, field.Type),
 			})
 		case "header":
 			required := !strings.HasPrefix(field.Type, "*")
 			op.Parameters = append(op.Parameters, Parameter{
-				Name:     field.Name,
-				In:       "header",
-				Required: required,
-				Schema:   schemaForType(field.Type),
+				Name:        field.Name,
+				In:          "header",
+				Description: field.Description,
+				Required:    required,
+				Schema:      builder.schemaForTypeString(currentImportPath, field.Type),
 			})
 		case "cookie":
 			required := !strings.HasPrefix(field.Type, "*")
 			op.Parameters = append(op.Parameters, Parameter{
-				Name:     field.Name,
-				In:       "cookie",
-				Required: required,
-				Schema:   schemaForType(field.Type),
+				Name:        field.Name,
+				In:          "cookie",
+				Description: field.Description,
+				Required:    required,
+				Schema:      builder.schemaForTypeString(currentImportPath, field.Type),
 			})
 		}
 	}
 
 	// Add request body
 	if handler.Input.Body != nil {
-		typeName := extractTypeName(handler.Input.Body.Type)
 		required := !strings.HasPrefix(handler.Input.Body.Type, "*")
 		op.RequestBody = &RequestBody{
-			Required: required,
+			Description: handler.Input.Body.Description,
+			Required:    required,
 			Content: map[string]Content{
 				"application/json": {
-					Schema: &Schema{Ref: "#/components/schemas/" + typeName},
+					Schema: builder.bodySchemaForTypeString(currentImportPath, handler.Input.Body.Type),
 				},
 			},
 		}
@@ -133,17 +118,16 @@ func addHandlerToSpec(spec *OpenAPISpec, handler ir.HandlerPlan) {
 	for _, variant := range handler.Output.Variants {
 		statusCode := strconv.Itoa(variant.StatusCode)
 		response := Response{
-			Description: fmt.Sprintf("Status %d response", variant.StatusCode),
+			Description: responseDescriptionForVariant(variant),
 			Headers:     make(map[string]Header),
 		}
 
 		// Add body field if present
 		bodyField := findFieldBySource(variant.Fields, "body")
 		if bodyField != nil {
-			typeName := extractTypeName(bodyField.Type)
 			response.Content = map[string]Content{
 				"application/json": {
-					Schema: &Schema{Ref: "#/components/schemas/" + typeName},
+					Schema: builder.bodySchemaForTypeString(currentImportPath, bodyField.Type),
 				},
 			}
 		}
@@ -152,7 +136,8 @@ func addHandlerToSpec(spec *OpenAPISpec, handler ir.HandlerPlan) {
 		for _, field := range variant.Fields {
 			if field.Source == "header" {
 				response.Headers[field.Name] = Header{
-					Schema: schemaForType(field.Type),
+					Description: field.Description,
+					Schema:      builder.schemaForTypeString(currentImportPath, field.Type),
 				}
 			}
 		}
@@ -169,7 +154,8 @@ func addHandlerToSpec(spec *OpenAPISpec, handler ir.HandlerPlan) {
 					response.Headers = make(map[string]Header)
 				}
 				response.Headers[field.Name] = Header{
-					Schema: schemaForType(field.Type),
+					Description: field.Description,
+					Schema:      builder.schemaForTypeString(currentImportPath, field.Type),
 				}
 				op.Responses[statusCode] = response
 			}
@@ -199,44 +185,18 @@ func addHandlerToSpec(spec *OpenAPISpec, handler ir.HandlerPlan) {
 	spec.Paths[pathKey] = pathItem
 }
 
-// schemaForType returns a basic Schema for a Go type string.
-func schemaForType(typeName string) *Schema {
-	typeName = strings.TrimPrefix(typeName, "*")
-	typeName = strings.TrimPrefix(typeName, "[]")
-
-	switch typeName {
-	case "string":
-		return &Schema{Type: "string"}
-	case "bool":
-		return &Schema{Type: "boolean"}
-	case "int", "int8", "int16", "int32":
-		return &Schema{Type: "integer", Format: "int32"}
-	case "int64":
-		return &Schema{Type: "integer", Format: "int64"}
-	case "uint", "uint8", "uint16", "uint32":
-		return &Schema{Type: "integer", Format: "uint32"}
-	case "uint64":
-		return &Schema{Type: "integer", Format: "uint64"}
-	case "float32":
-		return &Schema{Type: "number", Format: "float"}
-	case "float64":
-		return &Schema{Type: "number", Format: "double"}
-	case "uuid.UUID", "github.com/google/uuid.UUID":
-		return &Schema{Type: "string", Format: "uuid"}
-	default:
-		// Assume it's a struct reference
-		return &Schema{Ref: "#/components/schemas/" + typeName}
+func responseDescriptionForVariant(variant ir.OutputVariantPlan) string {
+	for _, field := range variant.Fields {
+		if field.Source == "body" && field.Description != "" {
+			return field.Description
+		}
 	}
-}
-
-// generateSchemaForType creates a schema for a named type.
-// This is a placeholder; proper implementation would inspect struct fields.
-func generateSchemaForType(typeName string) *Schema {
-	return &Schema{
-		Type:       "object",
-		Properties: make(map[string]*Schema),
-		Required:   []string{},
+	for _, field := range variant.Fields {
+		if field.Description != "" {
+			return field.Description
+		}
 	}
+	return fmt.Sprintf("Status %d response", variant.StatusCode)
 }
 
 // extractTypeName removes package prefix and pointer/slice markers.

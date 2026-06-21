@@ -166,10 +166,11 @@ Current OpenAPI generator output includes:
 - input `in:body` mapped to `requestBody` with `application/json`
 - output `response:XXX` variants mapped to response status codes
 - output `in:header` fields mapped to response headers
+- component schemas generated from Go struct fields, including nested objects, arrays, maps, `uuid.UUID`, and `time.Time`
+- `description:...` tags projected into parameters, request bodies, responses, and response headers
 
 Current limitations:
-- component schemas are currently basic placeholders for named body types
-- `description:...` / `schema:...` tags are not yet projected into OpenAPI fields
+- `schema:...` tags are not yet projected into OpenAPI component naming/overrides
 
 ---
 
@@ -522,11 +523,15 @@ func main() {
 
 ---
 
-## Preserved but currently unused tag keys
+## Extended tag keys
 
-These keys are parsed and preserved in tags for future work like OpenAPI generation, but runtime binding/rendering does not currently use them:
+These keys are parsed and preserved for documentation-oriented features. Runtime binding/rendering does not use them directly:
 - `description:...`
 - `schema:...`
+
+Current usage:
+- `description:...` is used by the OpenAPI generator for parameters, request bodies, responses, and headers
+- `schema:...` is reserved for future schema naming/override support
 
 Example:
 

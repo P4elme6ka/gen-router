@@ -31,10 +31,12 @@ type InputPlan struct {
 }
 
 type InputFieldPlan struct {
-	GoName string `json:"goName"`
-	Source string `json:"source"`
-	Name   string `json:"name"`
-	Type   string `json:"type"`
+	GoName      string `json:"goName"`
+	Source      string `json:"source"`
+	Name        string `json:"name"`
+	Type        string `json:"type"`
+	Description string `json:"description,omitempty"`
+	Schema      string `json:"schema,omitempty"`
 }
 
 type OutputPlan struct {
@@ -48,8 +50,10 @@ type OutputVariantPlan struct {
 }
 
 type OutputFieldPlan struct {
-	GoName string `json:"goName"`
-	Source string `json:"source"`
-	Name   string `json:"name"`
-	Type   string `json:"type"`
+	GoName      string `json:"goName"`
+	Source      string `json:"source"`
+	Name        string `json:"name"`
+	Type        string `json:"type"`
+	Description string `json:"description,omitempty"`
+	Schema      string `json:"schema,omitempty"`
 }

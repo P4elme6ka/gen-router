@@ -411,10 +411,12 @@ func buildInputPlan(inputType types.Type) (ir.InputPlan, error) {
 			continue
 		}
 		fieldPlan := ir.InputFieldPlan{
-			GoName: field.Name(),
-			Source: source,
-			Name:   firstNonEmpty(parsed["name"], field.Name()),
-			Type:   types.TypeString(field.Type(), types.RelativeTo(field.Pkg())),
+			GoName:      field.Name(),
+			Source:      source,
+			Name:        firstNonEmpty(parsed["name"], field.Name()),
+			Type:        types.TypeString(field.Type(), types.RelativeTo(field.Pkg())),
+			Description: parsed["description"],
+			Schema:      parsed["schema"],
 		}
 		if source == "body" {
 			if plan.Body != nil {
@@ -457,10 +459,12 @@ func buildOutputPlan(outputType types.Type) (ir.OutputPlan, error) {
 			source = "body"
 		}
 		fieldPlan := ir.OutputFieldPlan{
-			GoName: field.Name(),
-			Source: source,
-			Name:   firstNonEmpty(parsed["name"], field.Name()),
-			Type:   types.TypeString(field.Type(), types.RelativeTo(field.Pkg())),
+			GoName:      field.Name(),
+			Source:      source,
+			Name:        firstNonEmpty(parsed["name"], field.Name()),
+			Type:        types.TypeString(field.Type(), types.RelativeTo(field.Pkg())),
+			Description: parsed["description"],
+			Schema:      parsed["schema"],
 		}
 		if responseCodeRaw == "" {
 			plan.SharedFields = append(plan.SharedFields, fieldPlan)

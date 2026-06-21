@@ -21,7 +21,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	spec := oas.GenerateSpec(plan)
+	spec, err := oas.GenerateSpec(plan)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.SetIndent("", "  ")
